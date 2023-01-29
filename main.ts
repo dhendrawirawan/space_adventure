@@ -27,17 +27,18 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
         projectile2.changeScale(1, ScaleAnchor.Middle)
         pause(100)
         projectile2.setVelocity(0, -40)
-        statusbar.value += -10
+        statusbar.value += -20
         music.play(music.createSoundEffect(WaveShape.Noise, 1768, 0, 255, 140, 3000, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
         mySprite.startEffect(effects.spray, 500)
         for (let index = 0; index < 16; index++) {
             projectile2.changeScale(0.1, ScaleAnchor.Middle)
-            pause(200)
+            pause(100)
         }
-        projectile2.destroy(effects.confetti, 500)
-        Bomb_available = 1
     } else {
-        mySprite.startEffect(effects.spray, 500)
+        if (controller.B.isPressed()) {
+            mySprite.startEffect(effects.spray, 200)
+            Bomb_available = 1
+        }
     }
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -58,7 +59,9 @@ statusbars.onZero(StatusBarKind.Energy, function (status) {
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
     otherSprite.destroy(effects.disintegrate, 200)
-    sprite.destroy(effects.disintegrate, 200)
+    if (sprite == projectile) {
+        sprite.destroy(effects.disintegrate, 200)
+    }
     info.changeScoreBy(1)
     music.play(music.createSoundEffect(
     WaveShape.Square,
