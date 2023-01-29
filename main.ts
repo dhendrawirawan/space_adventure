@@ -21,7 +21,7 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
             . . 2 2 d 5 1 5 3 d 5 1 2 2 . . 
             . . 2 2 4 5 5 4 5 5 4 4 2 2 . . 
             . . . 2 2 4 4 4 4 4 2 2 2 . . . 
-            `, mySprite, 0, -100)
+            `, mySprite, 0, -30)
         projectile2.startEffect(effects.halo, 5000)
         pause(100)
         projectile2.changeScale(1, ScaleAnchor.Middle)
@@ -30,13 +30,13 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
         statusbar.value += -20
         music.play(music.createSoundEffect(WaveShape.Noise, 1768, 0, 255, 140, 3000, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
         mySprite.startEffect(effects.spray, 500)
-        for (let index = 0; index < 16; index++) {
-            projectile2.changeScale(0.1, ScaleAnchor.Middle)
+        for (let index = 0; index < 32; index++) {
+            projectile2.changeScale(0.2, ScaleAnchor.Middle)
             pause(100)
         }
     } else {
-        if (controller.B.isPressed()) {
-            mySprite.startEffect(effects.spray, 200)
+        mySprite.startEffect(effects.spray, 2000)
+        if (projectile2.y < 5) {
             Bomb_available = 1
         }
     }
@@ -80,8 +80,8 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
     otherSprite.destroy(effects.disintegrate, 500)
     music.play(music.createSoundEffect(WaveShape.Noise, 2125, 0, 255, 0, 500, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
 })
-let MyEnemyBoss: Sprite = null
 let MyEnemy: Sprite = null
+let MyEnemyBoss: Sprite = null
 let MyFuel: Sprite = null
 let projectile: Sprite = null
 let projectile2: Sprite = null
@@ -141,6 +141,88 @@ game.onUpdateInterval(5000, function () {
     MyFuel.x = randint(5, 155)
     MyFuel.setKind(SpriteKind.Gas)
 })
+game.onUpdateInterval(5000, function () {
+    if (game.runtime() > 15000) {
+        MyEnemyBoss = sprites.create(assets.image`EnemyBoss`, SpriteKind.Enemy)
+        animation.runImageAnimation(
+        MyEnemyBoss,
+        [img`
+            . . f f f . . . . . . . . f f f 
+            . f f c c . . . . . . f c b b c 
+            f f c c . . . . . . f c b b c . 
+            f c f c . . . . . . f b c c c . 
+            f f f c c . c c . f c b b c c . 
+            f f c 3 c c 3 c c f b c b b c . 
+            f f b 3 b c 3 b c f b c c b c . 
+            . c 1 b b b 1 b c b b c c c . . 
+            . c 1 b b b 1 b b c c c c . . . 
+            c b b b b b b b b b c c . . . . 
+            c b 1 f f 1 c b b b b f . . . . 
+            f f 1 f f 1 f b b b b f c . . . 
+            f f 2 2 2 2 f b b b b f c c . . 
+            . f 2 2 2 2 b b b b c f . . . . 
+            . . f b b b b b b c f . . . . . 
+            . . . f f f f f f f . . . . . . 
+            `,img`
+            . . f f f . . . . . . . . . . . 
+            f f f c c . . . . . . . . f f f 
+            f f c c c . c c . . . f c b b c 
+            f f c 3 c c 3 c c f f b b b c . 
+            f f c 3 b c 3 b c f b b c c c . 
+            f c b b b b b b c f b c b c c . 
+            c c 1 b b b 1 b c b b c b b c . 
+            c b b b b b b b b b c c c b c . 
+            c b 1 f f 1 c b b c c c c c . . 
+            c f 1 f f 1 f b b b b f c . . . 
+            f f f f f f f b b b b f c . . . 
+            f f 2 2 2 2 f b b b b f c c . . 
+            . f 2 2 2 2 2 b b b c f . . . . 
+            . . f 2 2 2 b b b c f . . . . . 
+            . . . f f f f f f f . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . c c . c c . . . . . . . . 
+            . . f 3 c c 3 c c c . . . . . . 
+            . f c 3 b c 3 b c c c . . . . . 
+            f c b b b b b b b b f f . . . . 
+            c c 1 b b b 1 b b b f f . . . . 
+            c b b b b b b b b c f f f . . . 
+            c b 1 f f 1 c b b f f f f . . . 
+            f f 1 f f 1 f b c c b b b . . . 
+            f f f f f f f b f c c c c . . . 
+            f f 2 2 2 2 f b f b b c c c . . 
+            . f 2 2 2 2 2 b c c b b c . . . 
+            . . f 2 2 2 b f f c c b b c . . 
+            . . . f f f f f f f c c c c c . 
+            . . . . . . . . . . . . c c c c 
+            `,img`
+            . f f f . . . . . . . . f f f . 
+            f f c . . . . . . . f c b b c . 
+            f c c . . . . . . f c b b c . . 
+            c f . . . . . . . f b c c c . . 
+            c f f . . . . . f f b b c c . . 
+            f f f c c . c c f b c b b c . . 
+            f f f c c c c c f b c c b c . . 
+            . f c 3 c c 3 b c b c c c . . . 
+            . c b 3 b c 3 b b c c c c . . . 
+            c c b b b b b b b b c c . . . . 
+            c 1 1 b b b 1 1 b b b f c . . . 
+            f b b b b b b b b b b f c c . . 
+            f b c b b b c b b b b f . . . . 
+            . f 1 f f f 1 b b b c f . . . . 
+            . . f b b b b b b c f . . . . . 
+            . . . f f f f f f f . . . . . . 
+            `],
+        500,
+        false
+        )
+        MyEnemyBoss.setPosition(randint(5, 155), -5)
+        MyEnemyBoss.setScale(2, ScaleAnchor.Middle)
+        MyEnemyBoss.follow(mySprite, 75)
+    }
+})
 game.onUpdateInterval(2000, function () {
     MyEnemy = sprites.createProjectileFromSide(assets.image`Blue Rocket0`, randint(-25, -75), randint(20, 50))
     MyEnemy.setKind(SpriteKind.Enemy)
@@ -151,12 +233,4 @@ game.onUpdateInterval(1000, function () {
 })
 game.onUpdateInterval(300, function () {
     statusbar.value += -1
-})
-game.onUpdateInterval(10000, function () {
-    if (game.runtime() > 25000) {
-        MyEnemyBoss = sprites.create(assets.image`EnemyBoss`, SpriteKind.Enemy)
-        MyEnemyBoss.setPosition(randint(5, 155), -5)
-        MyEnemyBoss.setScale(2, ScaleAnchor.Middle)
-        MyEnemyBoss.follow(mySprite, 75)
-    }
 })
