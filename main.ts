@@ -80,6 +80,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
     otherSprite.destroy(effects.disintegrate, 500)
     music.play(music.createSoundEffect(WaveShape.Noise, 2125, 0, 255, 0, 500, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
 })
+let MyEnemyBoss: Sprite = null
 let MyEnemy: Sprite = null
 let MyFuel: Sprite = null
 let projectile: Sprite = null
@@ -107,7 +108,7 @@ mySprite = sprites.create(img`
     . . . 5 4 5 . . . . . 5 4 5 . . 
     . . 5 4 5 4 5 . . . 5 4 5 4 5 . 
     `, SpriteKind.Player)
-mySprite.setPosition(77, 100)
+mySprite.setPosition(80, 106)
 controller.moveSprite(mySprite)
 mySprite.setStayInScreen(true)
 Bomb_available = 1
@@ -150,4 +151,12 @@ game.onUpdateInterval(1000, function () {
 })
 game.onUpdateInterval(300, function () {
     statusbar.value += -1
+})
+game.onUpdateInterval(10000, function () {
+    if (game.runtime() > 25000) {
+        MyEnemyBoss = sprites.create(assets.image`EnemyBoss`, SpriteKind.Enemy)
+        MyEnemyBoss.setPosition(randint(5, 155), -5)
+        MyEnemyBoss.setScale(2, ScaleAnchor.Middle)
+        MyEnemyBoss.follow(mySprite, 75)
+    }
 })
