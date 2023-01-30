@@ -21,10 +21,9 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
             . . 2 2 d 5 1 5 3 d 5 1 2 2 . . 
             . . 2 2 4 5 5 4 5 5 4 4 2 2 . . 
             . . . 2 2 4 4 4 4 4 2 2 2 . . . 
-            `, mySprite, 50, 100)
-        projectile2.startEffect(effects.halo, 5000)
-        mySprite.startEffect(effects.spray, 2000)
-        projectile2.setVelocity(0, -40)
+            `, mySprite, 0, -64)
+        mySprite.startEffect(effects.halo, 3000)
+        mySprite.setImage(assets.image`Ship_no_Bomb`)
         statusbar.value += -20
         music.play(music.createSoundEffect(WaveShape.Noise, 1768, 0, 255, 140, 3000, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
         for (let index = 0; index < 32; index++) {
@@ -39,6 +38,8 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     music.play(music.melodyPlayable(music.pewPew), music.PlaybackMode.InBackground)
 })
 info.onScore(100, function () {
+    game.showLongText("Time to finish (in seconds):", DialogLayout.Top)
+    game.showLongText(game.runtime() / 1000, DialogLayout.Bottom)
     game.gameOver(true)
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Gas, function (sprite, otherSprite) {
@@ -72,8 +73,8 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
     otherSprite.destroy(effects.disintegrate, 500)
     music.play(music.createSoundEffect(WaveShape.Noise, 2125, 0, 255, 0, 500, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
 })
-let MyEnemy: Sprite = null
 let MyEnemyBoss: Sprite = null
+let MyEnemy: Sprite = null
 let MyFuel: Sprite = null
 let projectile: Sprite = null
 let projectile2: Sprite = null
@@ -82,24 +83,7 @@ let Bomb_available = 0
 let mySprite: Sprite = null
 info.setScore(0)
 effects.starField.startScreenEffect()
-mySprite = sprites.create(img`
-    . . . . . . . . a . . . . . . . 
-    . . . . . 4 . . 3 . . 4 . . . . 
-    . . . . . 9 . e 3 e . 9 . . . . 
-    . . . . . 9 e f 2 f e 9 . . . . 
-    . . . . . e f 2 2 2 2 e . . . . 
-    . . . . . 2 2 2 2 2 2 4 . . . . 
-    . 4 . . . 2 4 2 9 2 2 2 . . . 4 
-    . 2 4 . 2 2 2 9 9 9 4 2 2 . 4 2 
-    . 2 2 c 2 4 e 9 d 9 c 2 c 2 2 2 
-    . . 2 2 2 2 9 9 d 9 9 2 2 2 c . 
-    . . . c 2 2 2 9 9 9 2 2 2 e . . 
-    . . . . 2 2 2 e e e 2 2 2 . . . 
-    . . . d c d . . . . . d c d . . 
-    . . . c 2 c . . . . . c 2 c . . 
-    . . . 5 4 5 . . . . . 5 4 5 . . 
-    . . 5 4 5 4 5 . . . 5 4 5 4 5 . 
-    `, SpriteKind.Player)
+mySprite = sprites.create(assets.image`BombLoadedShip`, SpriteKind.Player)
 mySprite.setPosition(80, 106)
 controller.moveSprite(mySprite)
 mySprite.setStayInScreen(true)
@@ -108,6 +92,11 @@ statusbar = statusbars.create(20, 4, StatusBarKind.Energy)
 statusbar.attachToSprite(mySprite, -25, 0)
 music.play(music.createSong(assets.song`SpaceSong`), music.PlaybackMode.LoopingInBackground)
 game.onUpdateInterval(5000, function () {
+    Bomb_available = 1
+    music.play(music.createSoundEffect(WaveShape.Sine, 894, 1131, 32, 114, 300, SoundExpressionEffect.Tremolo, InterpolationCurve.Linear), music.PlaybackMode.UntilDone)
+    mySprite.setImage(assets.image`BombLoadedShip`)
+})
+game.onUpdateInterval(9000, function () {
     MyFuel = sprites.createProjectileFromSide(img`
         ....................
         ....................
@@ -129,91 +118,9 @@ game.onUpdateInterval(5000, function () {
         ......76666666......
         ....................
         ....................
-        `, randint(-10, 10), randint(50, 75))
+        `, randint(-20, 20), randint(50, 100))
     MyFuel.x = randint(5, 155)
     MyFuel.setKind(SpriteKind.Gas)
-})
-game.onUpdateInterval(5000, function () {
-    if (game.runtime() > 15000) {
-        MyEnemyBoss = sprites.create(assets.image`EnemyBoss`, SpriteKind.Enemy)
-        animation.runImageAnimation(
-        MyEnemyBoss,
-        [img`
-            . . f f f . . . . . . . . f f f 
-            . f f c c . . . . . . f c b b c 
-            f f c c . . . . . . f c b b c . 
-            f c f c . . . . . . f b c c c . 
-            f f f c c . c c . f c b b c c . 
-            f f c 3 c c 3 c c f b c b b c . 
-            f f b 3 b c 3 b c f b c c b c . 
-            . c 1 b b b 1 b c b b c c c . . 
-            . c 1 b b b 1 b b c c c c . . . 
-            c b b b b b b b b b c c . . . . 
-            c b 1 f f 1 c b b b b f . . . . 
-            f f 1 f f 1 f b b b b f c . . . 
-            f f 2 2 2 2 f b b b b f c c . . 
-            . f 2 2 2 2 b b b b c f . . . . 
-            . . f b b b b b b c f . . . . . 
-            . . . f f f f f f f . . . . . . 
-            `,img`
-            . . f f f . . . . . . . . . . . 
-            f f f c c . . . . . . . . f f f 
-            f f c c c . c c . . . f c b b c 
-            f f c 3 c c 3 c c f f b b b c . 
-            f f c 3 b c 3 b c f b b c c c . 
-            f c b b b b b b c f b c b c c . 
-            c c 1 b b b 1 b c b b c b b c . 
-            c b b b b b b b b b c c c b c . 
-            c b 1 f f 1 c b b c c c c c . . 
-            c f 1 f f 1 f b b b b f c . . . 
-            f f f f f f f b b b b f c . . . 
-            f f 2 2 2 2 f b b b b f c c . . 
-            . f 2 2 2 2 2 b b b c f . . . . 
-            . . f 2 2 2 b b b c f . . . . . 
-            . . . f f f f f f f . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            `,img`
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . c c . c c . . . . . . . . 
-            . . f 3 c c 3 c c c . . . . . . 
-            . f c 3 b c 3 b c c c . . . . . 
-            f c b b b b b b b b f f . . . . 
-            c c 1 b b b 1 b b b f f . . . . 
-            c b b b b b b b b c f f f . . . 
-            c b 1 f f 1 c b b f f f f . . . 
-            f f 1 f f 1 f b c c b b b . . . 
-            f f f f f f f b f c c c c . . . 
-            f f 2 2 2 2 f b f b b c c c . . 
-            . f 2 2 2 2 2 b c c b b c . . . 
-            . . f 2 2 2 b f f c c b b c . . 
-            . . . f f f f f f f c c c c c . 
-            . . . . . . . . . . . . c c c c 
-            `,img`
-            . f f f . . . . . . . . f f f . 
-            f f c . . . . . . . f c b b c . 
-            f c c . . . . . . f c b b c . . 
-            c f . . . . . . . f b c c c . . 
-            c f f . . . . . f f b b c c . . 
-            f f f c c . c c f b c b b c . . 
-            f f f c c c c c f b c c b c . . 
-            . f c 3 c c 3 b c b c c c . . . 
-            . c b 3 b c 3 b b c c c c . . . 
-            c c b b b b b b b b c c . . . . 
-            c 1 1 b b b 1 1 b b b f c . . . 
-            f b b b b b b b b b b f c c . . 
-            f b c b b b c b b b b f . . . . 
-            . f 1 f f f 1 b b b c f . . . . 
-            . . f b b b b b b c f . . . . . 
-            . . . f f f f f f f . . . . . . 
-            `],
-        500,
-        false
-        )
-        MyEnemyBoss.setPosition(randint(5, 155), -5)
-        MyEnemyBoss.setScale(2, ScaleAnchor.Middle)
-        MyEnemyBoss.follow(mySprite, 75)
-    }
 })
 game.onUpdateInterval(2000, function () {
     MyEnemy = sprites.createProjectileFromSide(assets.image`Blue Rocket0`, randint(-25, -75), randint(20, 50))
@@ -222,6 +129,137 @@ game.onUpdateInterval(2000, function () {
 game.onUpdateInterval(1000, function () {
     MyEnemy = sprites.createProjectileFromSide(assets.image`Blue Rocket`, randint(25, 75), randint(20, 50))
     MyEnemy.setKind(SpriteKind.Enemy)
+})
+game.onUpdateInterval(4000, function () {
+    MyEnemyBoss = sprites.create(assets.image`EnemyBoss`, SpriteKind.Enemy)
+    animation.runImageAnimation(
+    MyEnemyBoss,
+    [img`
+        f f f . . . . . . . . f f f . . 
+        c b b c f . . . . . . c c f f . 
+        . c b b c f . . . . . . c c f f 
+        . c c c b f . . . . . . c f c f 
+        . c c b b c f . c c . c c f f f 
+        . c b b c b f c c 3 c c 3 c f f 
+        . c b c c b f c b 3 c b 3 b f f 
+        . . c c c b b c b 1 b b b 1 c . 
+        . . . c c c c b b 1 b b b 1 c . 
+        . . . . c c b b b b b b b b b c 
+        . . . . f b b b b c 1 f f 1 b c 
+        . . . c f b b b b f 1 f f 1 f f 
+        . . c c f b b b b f 2 2 2 2 f f 
+        . . . . f c b b b b 2 2 2 2 f . 
+        . . . . . f c b b b b b b f . . 
+        . . . . . . f f f f f f f . . . 
+        `,img`
+        . . . . . . . . . . . f f f . . 
+        f f f . . . . . . . . c c f f f 
+        c b b c f . . . c c . c c c f f 
+        . c b b b f f c c 3 c c 3 c f f 
+        . c c c b b f c b 3 c b 3 c f f 
+        . c c b c b f c b b b b b b c f 
+        . c b b c b b c b 1 b b b 1 c c 
+        . c b c c c b b b b b b b b b c 
+        . . c c c c c b b c 1 f f 1 b c 
+        . . . c f b b b b f 1 f f 1 f c 
+        . . . c f b b b b f f f f f f f 
+        . . c c f b b b b f 2 2 2 2 f f 
+        . . . . f c b b b 2 2 2 2 2 f . 
+        . . . . . f c b b b 2 2 2 f . . 
+        . . . . . . f f f f f f f . . . 
+        . . . . . . . . . . . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . c c . c c . . . 
+        . . . . . . c c c 3 c c 3 f . . 
+        . . . . . c c c b 3 c b 3 c f . 
+        . . . . f f b b b b b b b b c f 
+        . . . . f f b b b 1 b b b 1 c c 
+        . . . f f f c b b b b b b b b c 
+        . . . f f f f b b c 1 f f 1 b c 
+        . . . b b b c c b f 1 f f 1 f f 
+        . . . c c c c f b f f f f f f f 
+        . . c c c b b f b f 2 2 2 2 f f 
+        . . . c b b c c b 2 2 2 2 2 f . 
+        . . c b b c c f f b 2 2 2 f . . 
+        . c c c c c f f f f f f f . . . 
+        c c c c . . . . . . . . . . . . 
+        `,img`
+        . f f f . . . . . . . . f f f . 
+        . c b b c f . . . . . . . c f f 
+        . . c b b c f . . . . . . c c f 
+        . . c c c b f . . . . . . . f c 
+        . . c c b b f f . . . . . f f c 
+        . . c b b c b f c c . c c f f f 
+        . . c b c c b f c c c c c f f f 
+        . . . c c c b c b 3 c c 3 c f . 
+        . . . c c c c b b 3 c b 3 b c . 
+        . . . . c c b b b b b b b b c c 
+        . . . c f b b b 1 1 b b b 1 1 c 
+        . . c c f b b b b b b b b b b f 
+        . . . . f b b b b c b b b c b f 
+        . . . . f c b b b 1 f f f 1 f . 
+        . . . . . f c b b b b b b f . . 
+        . . . . . . f f f f f f f . . . 
+        `,img`
+        . f f f . . . . . . . . f f f . 
+        f f c . . . . . . . f c b b c . 
+        f c c . . . . . . f c b b c . . 
+        c f . . . . . . . f b c c c . . 
+        c f f . . . . . f f b b c c . . 
+        f f f c c . c c f b c b b c . . 
+        f f f c c c c c f b c c b c . . 
+        . f c 3 c c 3 b c b c c c . . . 
+        . c b 3 b c 3 b b c c c c . . . 
+        c c b b b b b b b b c c . . . . 
+        c b 1 b b b 1 b b b b f c . . . 
+        f b b b b b b b b b b f c c . . 
+        f b c b b b c b b b b f . . . . 
+        . f 1 f f f 1 b b b c f . . . . 
+        . . f b b b b b b c f . . . . . 
+        . . . f f f f f f f . . . . . . 
+        `,img`
+        . . f f f . . . . . . . . f f f 
+        . f f c c . . . . . . f c b b c 
+        f f c c . . . . . . f c b b c . 
+        f c f c . . . . . . f b c c c . 
+        f f f c c . c c . f c b b c c . 
+        f f c 3 c c 3 c c f b c b b c . 
+        f f b 3 b c 3 b c f b c c b c . 
+        . c 1 b b b 1 b c b b c c c . . 
+        . c 1 b b b 1 b b c c c c . . . 
+        c b b b b b b b b b c c . . . . 
+        c b 1 f f 1 c b b b b f . . . . 
+        f f 1 f f 1 f b b b b f c . . . 
+        f f 2 2 2 2 f b b b b f c c . . 
+        . f 2 2 2 2 b b b b c f . . . . 
+        . . f b b b b b b c f . . . . . 
+        . . . f f f f f f f . . . . . . 
+        `,img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . c c . c c . . . . . . . . 
+        . . f 3 c c 3 c c c . . . . . . 
+        . f c 3 b c 3 b c c c . . . . . 
+        f c b b b b b b b b f f . . . . 
+        c c 1 b b b 1 b b b f f . . . . 
+        c b b b b b b b b c f f f . . . 
+        c b 1 f f 1 c b b f f f f . . . 
+        f f 1 f f 1 f b c c b b b . . . 
+        f f f f f f f b f c c c c . . . 
+        f f 2 2 2 2 f b f b b c c c . . 
+        . f 2 2 2 2 2 b c c b b c . . . 
+        . . f 2 2 2 b f f c c b b c . . 
+        . . . f f f f f f f c c c c c . 
+        . . . . . . . . . . . . c c c c 
+        `],
+    500,
+    false
+    )
+    MyEnemyBoss.setPosition(randint(5, 155), -5)
+    MyEnemyBoss.setScale(2.5, ScaleAnchor.Middle)
+    MyEnemyBoss.follow(mySprite, 75)
 })
 game.onUpdateInterval(300, function () {
     statusbar.value += -1
