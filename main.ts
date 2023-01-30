@@ -2,8 +2,8 @@ namespace SpriteKind {
     export const Gas = SpriteKind.create()
 }
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (statusbar.value > 25 && Bomb_available > 0) {
-        Bomb_available += -1
+    if (statusbar.value > 25 && Bomb_available >= 5) {
+        Bomb_available = 0
         projectile2 = sprites.createProjectileFromSprite(img`
             . . . . 2 2 2 2 2 2 2 2 4 . . . 
             . . . 2 4 4 4 5 5 4 4 4 2 2 2 . 
@@ -91,11 +91,6 @@ Bomb_available = 1
 statusbar = statusbars.create(20, 4, StatusBarKind.Energy)
 statusbar.attachToSprite(mySprite, -25, 0)
 music.play(music.createSong(assets.song`SpaceSong`), music.PlaybackMode.LoopingInBackground)
-game.onUpdateInterval(5000, function () {
-    Bomb_available = 1
-    music.play(music.createSoundEffect(WaveShape.Sine, 894, 1131, 32, 114, 300, SoundExpressionEffect.Tremolo, InterpolationCurve.Linear), music.PlaybackMode.UntilDone)
-    mySprite.setImage(assets.image`BombLoadedShip`)
-})
 game.onUpdateInterval(9000, function () {
     MyFuel = sprites.createProjectileFromSide(img`
         ....................
@@ -125,6 +120,15 @@ game.onUpdateInterval(9000, function () {
 game.onUpdateInterval(2000, function () {
     MyEnemy = sprites.createProjectileFromSide(assets.image`Blue Rocket0`, randint(-25, -75), randint(20, 50))
     MyEnemy.setKind(SpriteKind.Enemy)
+})
+game.onUpdateInterval(1000, function () {
+    if (Bomb_available < 5) {
+        Bomb_available += 1
+    }
+    if (Bomb_available == 4) {
+        music.play(music.melodyPlayable(music.powerDown), music.PlaybackMode.InBackground)
+        mySprite.setImage(assets.image`BombLoadedShip`)
+    }
 })
 game.onUpdateInterval(1000, function () {
     MyEnemy = sprites.createProjectileFromSide(assets.image`Blue Rocket`, randint(25, 75), randint(20, 50))
