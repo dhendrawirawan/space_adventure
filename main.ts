@@ -2,8 +2,8 @@ namespace SpriteKind {
     export const Gas = SpriteKind.create()
 }
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (statusbar.value > 25 && Bomb_available == 1) {
-        Bomb_available = 0
+    if (statusbar.value > 25 && Bomb_available > 0) {
+        Bomb_available += -1
         projectile2 = sprites.createProjectileFromSprite(img`
             . . . . 2 2 2 2 2 2 2 2 4 . . . 
             . . . 2 4 4 4 5 5 4 4 4 2 2 2 . 
@@ -21,23 +21,15 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
             . . 2 2 d 5 1 5 3 d 5 1 2 2 . . 
             . . 2 2 4 5 5 4 5 5 4 4 2 2 . . 
             . . . 2 2 4 4 4 4 4 2 2 2 . . . 
-            `, mySprite, 0, -30)
+            `, mySprite, 50, 100)
         projectile2.startEffect(effects.halo, 5000)
-        pause(100)
-        projectile2.changeScale(1, ScaleAnchor.Middle)
-        pause(100)
+        mySprite.startEffect(effects.spray, 2000)
         projectile2.setVelocity(0, -40)
         statusbar.value += -20
         music.play(music.createSoundEffect(WaveShape.Noise, 1768, 0, 255, 140, 3000, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
-        mySprite.startEffect(effects.spray, 500)
         for (let index = 0; index < 32; index++) {
-            projectile2.changeScale(0.2, ScaleAnchor.Middle)
+            projectile2.changeScale(0.5, ScaleAnchor.Middle)
             pause(100)
-        }
-    } else {
-        mySprite.startEffect(effects.spray, 2000)
-        if (projectile2.y < 5) {
-            Bomb_available = 1
         }
     }
 })
